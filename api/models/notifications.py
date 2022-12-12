@@ -16,7 +16,9 @@ class Notification(models.Model):
         (9, '申诉学术成果失败'),
         (10, '评论'),
         (11, '回复评论'),
-        (12, '举报评论')
+        (12, '举报评论成功 - 给评论者'),
+        (13, '举报评论成功 - 给举报者'),
+        (14, '举报评论驳回 - 给举报者'),
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
