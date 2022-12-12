@@ -168,13 +168,21 @@ def manageReviewReport(request):
             user.banDuration = timezone.now() + timezone.timedelta(days=3)
             user.save()
             report.result=True
-            newNotice = Notification(type=12,belongTo=user,paperId=articleId,paperName=name)
-            newNotice.save()
+            noticeToCreator = Notification(type=12,belongTo=user,paperId=articleId,paperName=name)
+            noticeToCreator.save()
+            noticeToUser = Notification(type=13,belongTo=report.createdBy,paperId=articleId,paperName=name,userId=user.id,userName=user.username)
+            noticeToUser.save()
+
             review.delete()
-            return JsonResponse({'errno':1001, 'msg': '举报通过，已将用户禁言三天'})
+            data=model_to_dict(noticeToUser)
+            data1=model_to_dict(noticeToCreator)
+            return JsonResponse({'errno':1001, 'msg': '举报通过，已将用户禁言三天','noticeToReviewCreator':data1,'noticeToReportCreator':data})
         elif result == '0':
             report.result=False
-            return JsonResponse({'errno':2001, 'msg': '举报驳回'})
+            noticeToUser = Notification(type=14,belongTo=report.createdBy,paperId=articleId,paperName=name,userId=user.id,userName=user.username)
+            noticeToUser.save()
+            data=model_to_dict(noticeToUser)
+            return JsonResponse({'errno':2001, 'msg': '举报驳回','notification':data})
 
 
 @csrf_exempt
