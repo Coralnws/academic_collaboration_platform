@@ -6,8 +6,7 @@ from django.db import models
 class Question(models.Model):
     CATEGORY = (
         (0, '主问题'),
-        (1, '提问'),
-        (2, '回复'),
+        (1, '提问/回复'),
     )
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

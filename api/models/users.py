@@ -63,7 +63,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     createdAt = models.DateTimeField(default=timezone.now)
     updatedAt = models.DateTimeField(default=timezone.now)
-
+    banComment = models.BooleanField(default=False)
+    banDuration = models.DateTimeField(blank=True,null=True,default=None)
 
     objects = CustomUserManager()
 

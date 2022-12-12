@@ -16,16 +16,6 @@ from django.forms.models import model_to_dict
 from django.core.serializers import serialize
 from django.core import serializers
 
-#关注 - followScholar(POST,follow and unfollow) , listFollow(GET) , 
-#提问/追问追答 - 在学者门户显示出来，拿学者id来分别，
-#       createQuestionReply(POST & category depands on sender type),listQuestionReply(GET & sort by createdTime)
-#私信 - requestPrivateMessage(by user) , getRequest(by scholarUser) , replyRequest(by scholarUser) , getMessage()(combine both user and sort by time) 
-#       createMessage 
-#getMessage的时候可以把message都link去某个学者和user的连接通道，这样的话就通过两个user找
-#查看学者门户 - 直接返回一个学者信息
-
-#UserRequestScholar 相当于连接通道，sendRequest就是create一个通道，然后设成0已发送，getRequest的时候就找type=0的，
-#发送私信请求，有学者身份的user get私信请求，回复私信请求， 检查当前user和目标学者的通信情况，get两个user之间的信息记录
 @csrf_exempt
 def followScholar(request):
     if request.method == 'POST':
@@ -38,7 +28,7 @@ def followScholar(request):
         userScholar = UserScholar.objects.filter(user=user,scholar=scholarId).first()
         scholarUser = CustomUser.objects.filter(scholarAuth=scholarId).first()
         print(scholarUser)
-        
+        newNotice=None
         if userScholar is None:
             newFollow = UserScholar(user=user,scholar=scholarId,scholarName=scholarName)
             newFollow.isFollow = True
@@ -46,21 +36,23 @@ def followScholar(request):
             if scholarUser:
                 newNotice = Notification(type=1,belongTo=scholarUser,userId=userId,userName=user.username,scholarId=scholarId,scholarName=scholarName)
                 newNotice.save()
-                
-
-            return JsonResponse({'errno': 1001, 'msg': "成功关注学者"})
+            data=model_to_dict(newNotice)
+            return JsonResponse({'errno': 1001, 'msg': "成功关注学者",'notification':data})
         else:
             if userScholar.isFollow == True:
                 userScholar.isFollow = False
+                userScholar.save()
+                return JsonResponse({'errno': 1001, 'msg': "取关学者成功"})
             else:
                 userScholar.isFollow = True
+                userScholar.save()
                 if scholarUser:
                     newNotice = Notification(type=1,belongTo=scholarUser,userId=userId,userName=user.username,scholarId=scholarId,scholarName=scholarName)
                     newNotice.save()
+                    data=model_to_dict(newNotice)
+                    return JsonResponse({'errno': 1001, 'msg': "成功关注学者",'notification':data})
 
-            userScholar.save()    
-    
-            return JsonResponse({'errno': 1001, 'msg': "成功关注/取关学者"})
+
         
 @csrf_exempt
 def getFollowList(request): #get scholarName by id and return 
@@ -80,43 +72,27 @@ def getFollowList(request): #get scholarName by id and return
             data.append(data1)
 
         return JsonResponse({'errno':1001, 'msg': '返回关注列表成功', 'data': data})
-            
-
-@csrf_exempt
-def createQuestionReply(request):
-    if request.method == 'POST':
-        userId = request.POST.get('userId')
-        scholarId = request.POST.get('scholarId')
-        type = request.POST.get('type') #0=新建问题 ， 1=用户后来追问， 2=学者回答
-        user = CustomUser.objects.filter(id=userId).first()
-        if(type=="0"):
-            newQuestion = Question(createdBy=user,scholar = scholarId , category=type)
-            newQuestion.content = request.POST.get('content')
-            newQuestion.save()
-        else: #追问的话，前端传来主问题的id
-            existQuestion = Question.objects.filter(id=request.POST.get('mainQuestion'))
-            newQuestion = Question(createdBy=user,scholar = scholarId , category=type,belongQuestion=existQuestion)
-            newQuestion.content = request.POST.get('content')
-            newQuestion.save()
-    
+                
 
 @csrf_exempt
 def requestPrivateMessage(request):
     if request.method == 'POST':
         user = CustomUser.objects.filter(id=request.POST.get('userId')).first()
         scholar = CustomUser.objects.filter(scholarAuth = request.POST.get('scholarId')).first()
-        existRequest = UserRequestScholar.objects.filter(user=user,scholar=scholar)
+        print(scholar)
+        existRequest = UserRequestScholar.objects.filter(user=user,scholar=scholar).first()
         if existRequest:
-            existRequest.status=0
+            return JsonResponse({'errno': 2001, 'msg': "双方已通信"})
+
         else:
             request = UserRequestScholar(user=user,scholar=scholar,status=1)
             request.save()
-
+        
         # notification = user.username + " 已向您发起私信请求。"
         # newNotice = Notification(user=scholar,content=notification)
         # newNotice.save()
-
-        return JsonResponse({'errno': 1001, 'msg': "成功要求私信"})
+        data=model_to_dict(request)
+        return JsonResponse({'errno': 1001, 'msg': "成功要求私信",'chatBox':data})
 
 @csrf_exempt
 def getRequest(request): #getChatBox
@@ -145,7 +121,7 @@ def getRequest(request): #getChatBox
                 data1['lastMessageTime']=None 
             data.append(data1)
         
-        return JsonResponse({'errno':1001, 'msg': '返回数据成功', 'data': data})
+        return JsonResponse({'errno':1001, 'msg': '获取私信列表', 'data': data})
 
 @csrf_exempt
 def replyRequest(request):
@@ -221,8 +197,8 @@ def sendMessage(request):
         # #     notification = "您有来自 " + user.username + " 的新消息"
         # #     newNotice = Notification(user=target,content=notification,chat=chatBox)
         # #     newNotice.save()
-
-        return JsonResponse({'errno':1001, 'msg': '发送信息成功'})
+        data=model_to_dict(message)
+        return JsonResponse({'errno':1001, 'msg': '成功发送信息','data':data})
 
 @csrf_exempt
 def getAuthorListFromEs(request):

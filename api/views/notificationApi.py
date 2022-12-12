@@ -55,6 +55,18 @@ def checkNotification(request):
     count = notificationCount + unreadMessage
     return JsonResponse({'count': count})
     
-    
+
+@csrf_exempt
+def deleteNotification(request):
+    if request.method == 'POST':
+        userId = request.POST.get('userId')
+        notificationId = request.POST.get('notificationId')
+        notification = Notification.objects.filter(id=notificationId).first()
+        user= CustomUser.objects.filter(id=userId).first()
+        if notification.belongTo==user:
+            notification.delete()
+            return JsonResponse({'errno':1001, 'msg': '成功删除通知'})
+        else:
+            return JsonResponse({'errno':2001, 'msg': '非本人操作'})
 
 
