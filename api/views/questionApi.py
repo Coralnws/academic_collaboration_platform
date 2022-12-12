@@ -32,7 +32,7 @@ def createQuestionReply(request):
             newQuestion.save()
 
         data=model_to_dict(newQuestion)
-        return JsonResponse({'errno':1001, 'msg': '成功提问','question':data})
+        return UTF8JsonResponse({'errno':1001, 'msg': '成功提问','question':data})
 
 @csrf_exempt
 def getQuestionReply(request):
@@ -55,4 +55,4 @@ def getQuestionReply(request):
             data.append(data1)
             print(data1)
 
-        return JsonResponse({'errno':1001, 'msg': '获取提问信息', 'data': data})
+        return UTF8JsonResponse({'errno':1001, 'msg': '获取提问信息', 'data': data})

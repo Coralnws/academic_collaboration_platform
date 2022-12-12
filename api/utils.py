@@ -3,6 +3,8 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 import random
 
+from django.http.response import JsonResponse
+
 from backend import settings
 from api.models import *
 
@@ -23,7 +25,7 @@ def send_smtp(user,scholar,request,code,subject, fileName):
     )
 
     email.send(fail_silently=False)
-    #return JsonResponse({'errno': 1001, 'msg': "邮件已发送"})
+    #return UTF8JsonResponse({'errno': 1001, 'msg': "邮件已发送"})
 
 def gen_code(length=6):
     str1 = '0123456789'
@@ -36,3 +38,9 @@ def gen_code(length=6):
 def addNotification(user,content):
     notification = Notification(user=user,content=content)
     notification.save()
+
+
+class UTF8JsonResponse(JsonResponse):
+    def __init__(self, *args, json_dumps_params=None, **kwargs):
+        json_dumps_params = {"ensure_ascii": False, **(json_dumps_params or {})}
+        super().__init__(*args, json_dumps_params=json_dumps_params, **kwargs)

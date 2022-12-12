@@ -37,12 +37,12 @@ def followScholar(request):
                 newNotice = Notification(type=1,belongTo=scholarUser,userId=userId,userName=user.username,scholarId=scholarId,scholarName=scholarName)
                 newNotice.save()
             data=model_to_dict(newNotice)
-            return JsonResponse({'errno': 1001, 'msg': "成功关注学者",'notification':data})
+            return UTF8JsonResponse({'errno': 1001, 'msg': "成功关注学者",'notification':data})
         else:
             if userScholar.isFollow == True:
                 userScholar.isFollow = False
                 userScholar.save()
-                return JsonResponse({'errno': 1001, 'msg': "取关学者成功"})
+                return UTF8JsonResponse({'errno': 1001, 'msg': "取关学者成功"})
             else:
                 userScholar.isFollow = True
                 userScholar.save()
@@ -50,7 +50,7 @@ def followScholar(request):
                     newNotice = Notification(type=1,belongTo=scholarUser,userId=userId,userName=user.username,scholarId=scholarId,scholarName=scholarName)
                     newNotice.save()
                     data=model_to_dict(newNotice)
-                    return JsonResponse({'errno': 1001, 'msg': "成功关注学者",'notification':data})
+                    return UTF8JsonResponse({'errno': 1001, 'msg': "成功关注学者",'notification':data})
 
 
         
@@ -71,7 +71,7 @@ def getFollowList(request): #get scholarName by id and return
             data1['id']=tmp.id
             data.append(data1)
 
-        return JsonResponse({'errno':1001, 'msg': '返回关注列表成功', 'data': data})
+        return UTF8JsonResponse({'errno':1001, 'msg': '返回关注列表成功', 'data': data})
                 
 
 @csrf_exempt
@@ -82,7 +82,7 @@ def requestPrivateMessage(request):
         print(scholar)
         existRequest = UserRequestScholar.objects.filter(user=user,scholar=scholar).first()
         if existRequest:
-            return JsonResponse({'errno': 2001, 'msg': "双方已通信"})
+            return UTF8JsonResponse({'errno': 2001, 'msg': "双方已通信"})
 
         else:
             request = UserRequestScholar(user=user,scholar=scholar,status=1)
@@ -92,7 +92,7 @@ def requestPrivateMessage(request):
         # newNotice = Notification(user=scholar,content=notification)
         # newNotice.save()
         data=model_to_dict(request)
-        return JsonResponse({'errno': 1001, 'msg': "成功要求私信",'chatBox':data})
+        return UTF8JsonResponse({'errno': 1001, 'msg': "成功要求私信",'chatBox':data})
 
 @csrf_exempt
 def getRequest(request): #getChatBox
@@ -121,14 +121,14 @@ def getRequest(request): #getChatBox
                 data1['lastMessageTime']=None 
             data.append(data1)
         
-        return JsonResponse({'errno':1001, 'msg': '获取私信列表', 'data': data})
+        return UTF8JsonResponse({'errno':1001, 'msg': '获取私信列表', 'data': data})
 
 @csrf_exempt
 def replyRequest(request):
     if request.method == 'POST':
         # uid=request.session.get('uid')
         # if uid is None:
-        #     return JsonResponse({'errno': 800001, 'msg': '当前cookie为空，未登录，请先登录'})
+        #     return UTF8JsonResponse({'errno': 800001, 'msg': '当前cookie为空，未登录，请先登录'})
         userId = request.POST.get('userId')
         user = CustomUser.objects.filter(id=userId).first()
         requestId = request.POST.get('requestId')
@@ -147,7 +147,7 @@ def replyRequest(request):
         userRequest.save()
         newNotice.save()
     
-        return JsonResponse({'errno':1001, 'msg': '回复请求成功'})
+        return UTF8JsonResponse({'errno':1001, 'msg': '回复请求成功'})
 
 
 @csrf_exempt
@@ -172,7 +172,7 @@ def getChatBoxMessage(request):
             tmp.seen = True
             tmp.save()
     
-        return JsonResponse({'errno':1001, 'msg': '返回信息数据成功', 'data': data})
+        return UTF8JsonResponse({'errno':1001, 'msg': '返回信息数据成功', 'data': data})
 
 @csrf_exempt
 def sendMessage(request):
@@ -198,7 +198,7 @@ def sendMessage(request):
         # #     newNotice = Notification(user=target,content=notification,chat=chatBox)
         # #     newNotice.save()
         data=model_to_dict(message)
-        return JsonResponse({'errno':1001, 'msg': '成功发送信息','data':data})
+        return UTF8JsonResponse({'errno':1001, 'msg': '成功发送信息','data':data})
 
 @csrf_exempt
 def getAuthorListFromEs(request):
@@ -207,5 +207,5 @@ def getAuthorListFromEs(request):
         
         authorList = searchAuthor(scholar_name)
 
-        return JsonResponse(authorList,safe=False)
+        return UTF8JsonResponse(authorList,safe=False)
 

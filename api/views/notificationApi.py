@@ -35,7 +35,7 @@ def getNotification(request):
             tmp.seen = True
             tmp.save()
 
-        return JsonResponse({'errno':1001, 'msg': '返回通知列表成功', 'data': data})
+        return UTF8JsonResponse({'errno':1001, 'msg': '返回通知列表成功', 'data': data})
             
 @csrf_exempt
 def checkNotification(request):
@@ -53,7 +53,7 @@ def checkNotification(request):
             break
 
     count = notificationCount + unreadMessage
-    return JsonResponse({'count': count})
+    return UTF8JsonResponse({'count': count})
     
 
 @csrf_exempt
@@ -65,8 +65,8 @@ def deleteNotification(request):
         user= CustomUser.objects.filter(id=userId).first()
         if notification.belongTo==user:
             notification.delete()
-            return JsonResponse({'errno':1001, 'msg': '成功删除通知'})
+            return UTF8JsonResponse({'errno':1001, 'msg': '成功删除通知'})
         else:
-            return JsonResponse({'errno':2001, 'msg': '非本人操作'})
+            return UTF8JsonResponse({'errno':2001, 'msg': '非本人操作'})
 
 

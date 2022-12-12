@@ -1,5 +1,5 @@
 from django.urls import path
-from api.views import scholarAuthentication,scholarCommunicate,notificationApi,reviewsApi,questionApi
+from api.views import scholarAuthentication,scholarCommunicate,notificationApi,reviewsApi,questionApi,pageApi
 
 urlpatterns = [
 
@@ -32,7 +32,5 @@ urlpatterns = [
     #question
     path('createQuestion',questionApi.createQuestionReply),
     path('getQuestion',questionApi.getQuestionReply),
-
-
-
+    path('getScholar',pageApi.showScholarPage),
 ]

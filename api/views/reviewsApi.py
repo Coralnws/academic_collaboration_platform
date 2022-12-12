@@ -40,7 +40,7 @@ from django.forms.models import model_to_dict
 #                 newNotice = Notification(type=10,belongTo=scholarUser,userId=userId,userName=user.username,paperId=articleId,paperName=name)
 #                 newNotice.save()
 
-#         return JsonResponse({'errno':1001, 'msg': '成功发布评论'})
+#         return UTF8JsonResponse({'errno':1001, 'msg': '成功发布评论'})
 
 @csrf_exempt
 def createReview(request):
@@ -56,7 +56,7 @@ def createReview(request):
             if user.banDuration > timezone.now():
                 data={}
                 data['banDuration'] = user.banDuration
-                return JsonResponse({'errno':3001, 'msg': '用户已被禁言','data':data})
+                return UTF8JsonResponse({'errno':3001, 'msg': '用户已被禁言','data':data})
             else:
                 user.banComment=False
                 user.banDuration=None
@@ -77,7 +77,7 @@ def createReview(request):
             data={}
             data['newReviewId'] = newReview.id 
             data2=model_to_dict(newNotice)
-            return JsonResponse({'errno':1001, 'msg': '成功回复评论','review':data,'notification':data2})
+            return UTF8JsonResponse({'errno':1001, 'msg': '成功回复评论','review':data,'notification':data2})
         else:
             newReview = Review(article=paperId,content=content,createdBy=user)
             newReview.save()
@@ -97,7 +97,7 @@ def createReview(request):
             data={}
             data['newReviewId'] = newReview.id 
             data2=model_to_dict(newNotice)
-            return JsonResponse({'errno':1001, 'msg': '成功发布评论','review':data,'notification':data2})
+            return UTF8JsonResponse({'errno':1001, 'msg': '成功发布评论','review':data,'notification':data2})
 
 
 @csrf_exempt
@@ -120,14 +120,14 @@ def getReview(request):
             data.append(data1)
             print(data1)
 
-        return JsonResponse({'errno':1001, 'msg': '返回评论成功', 'data': data})
+        return UTF8JsonResponse({'errno':1001, 'msg': '返回评论成功', 'data': data})
 
 @csrf_exempt
 def reportReview(request):
     if request.method == 'POST':
         # userId=request.session.get('uid')
         # if userId is None:
-        #     return JsonResponse({'errno': 800001, 'msg': '当前cookie为空，未登录，请先登录'})
+        #     return UTF8JsonResponse({'errno': 800001, 'msg': '当前cookie为空，未登录，请先登录'})
         userId = request.POST.get('userId')
         print(userId)
         reviewId = request.POST.get('reviewId')
@@ -143,7 +143,7 @@ def reportReview(request):
 
         data=model_to_dict(newReport)
         
-        return JsonResponse({'errno':1001, 'msg': '成功举报评论','data':data})
+        return UTF8JsonResponse({'errno':1001, 'msg': '成功举报评论','data':data})
 
 
 @csrf_exempt
@@ -152,7 +152,7 @@ def manageReviewReport(request):
         userId = request.POST.get('userId')
         userStaff = CustomUser.objects.filter(id=userId).first()
         if userStaff.is_staff == False:
-            return JsonResponse({'errno':3001, 'msg': '非管理员'})
+            return UTF8JsonResponse({'errno':3001, 'msg': '非管理员'})
         reportId = request.POST.get('reportId')
         report=ReviewReport.objects.filter(id=reportId).first()
         review = report.reportReview
@@ -176,13 +176,13 @@ def manageReviewReport(request):
             review.delete()
             data=model_to_dict(noticeToUser)
             data1=model_to_dict(noticeToCreator)
-            return JsonResponse({'errno':1001, 'msg': '举报通过，已将用户禁言三天','noticeToReviewCreator':data1,'noticeToReportCreator':data})
+            return UTF8JsonResponse({'errno':1001, 'msg': '举报通过，已将用户禁言三天','noticeToReviewCreator':data1,'noticeToReportCreator':data})
         elif result == '0':
             report.result=False
             noticeToUser = Notification(type=14,belongTo=report.createdBy,paperId=articleId,paperName=name,userId=user.id,userName=user.username)
             noticeToUser.save()
             data=model_to_dict(noticeToUser)
-            return JsonResponse({'errno':2001, 'msg': '举报驳回','notification':data})
+            return UTF8JsonResponse({'errno':2001, 'msg': '举报驳回','notification':data})
 
 
 @csrf_exempt
@@ -194,6 +194,6 @@ def deleteReview(request):
         user= CustomUser.objects.filter(id=userId).first()
         if review.createdBy==user:
             review.delete()
-            return JsonResponse({'errno':1001, 'msg': '成功删除评论'})
+            return UTF8JsonResponse({'errno':1001, 'msg': '成功删除评论'})
         else:
-            return JsonResponse({'errno':2001, 'msg': '非本人操作'})
+            return UTF8JsonResponse({'errno':2001, 'msg': '非本人操作'})

@@ -20,7 +20,7 @@ def requestScholarAuthenticate(request):
         scholar = Scholar.objects.filter(id=scholarId).first()
         scholar_name = scholar.name.replace(" ", "")
         if scholar.belongTo is not None:
-            return JsonResponse({'errno': 3003, 'msg': "学者已被认领"})
+            return UTF8JsonResponse({'errno': 3003, 'msg': "学者已被认领"})
         
         if user:
             match = False
@@ -43,12 +43,12 @@ def requestScholarAuthenticate(request):
                     code.save()
                 #(user,scholar_name,request,code,subject, fileName)
                 send_smtp(user,scholar,request,genCode,"Scholar Authentication 认领学者身份","authenticate_scholar.txt")
-                return JsonResponse({'errno': 1001, 'msg': "邮件已发送"})
+                return UTF8JsonResponse({'errno': 1001, 'msg': "邮件已发送"})
             else:
-                return JsonResponse({'errno': 3002, 'msg': "用户名与学者名不符"})
+                return UTF8JsonResponse({'errno': 3002, 'msg': "用户名与学者名不符"})
 
         else:
-            return JsonResponse({'errno': 3001, 'msg': "用户不存在"})
+            return UTF8JsonResponse({'errno': 3001, 'msg': "用户不存在"})
 
 @csrf_exempt
 def validateScholarAuthentication(request):
@@ -70,12 +70,12 @@ def validateScholarAuthentication(request):
                         scholar.belongTo = user
                         scholar.save()
                         oldCode.delete()
-                        return JsonResponse({'errno': 1002, 'msg': "认领学者成功"})
+                        return UTF8JsonResponse({'errno': 1002, 'msg': "认领学者成功"})
                     else:
-                        return JsonResponse({'errno': 3003, 'msg': "验证码已过期"})
+                        return UTF8JsonResponse({'errno': 3003, 'msg': "验证码已过期"})
                 else:
-                    return JsonResponse({'errno': 3004, 'msg': "验证码不正确"})
+                    return UTF8JsonResponse({'errno': 3004, 'msg': "验证码不正确"})
             else:
-                return JsonResponse({'errno': 3005, 'msg': "用户没有申请学者认证"})
+                return UTF8JsonResponse({'errno': 3005, 'msg': "用户没有申请学者认证"})
         else:
-            return JsonResponse({'errno': 3001, 'msg': "用户不存在"})
+            return UTF8JsonResponse({'errno': 3001, 'msg': "用户不存在"})
